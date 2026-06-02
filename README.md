@@ -26,6 +26,17 @@ MCP's stdio transport. It reads the reports; it does not modify them.
 
 ## Installation
 
+Install a standalone, runnable copy with Composer:
+
+```bash
+composer create-project noisebynorthwest/php-spx-mcp
+```
+
+This creates a `php-spx-mcp/` directory with dependencies installed; its
+`bin/server.php` is the entry point referenced below.
+
+Alternatively, clone the repository:
+
 ```bash
 git clone https://github.com/NoiseByNorthwest/php-spx-mcp.git
 cd php-spx-mcp
