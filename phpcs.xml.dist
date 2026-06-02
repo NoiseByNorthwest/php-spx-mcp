@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="spx-mcp">
+    <description>Project-specific lint rules that PHP-CS-Fixer cannot enforce (line length, etc.).</description>
+
+    <file>src</file>
+    <file>tests</file>
+    <file>bin</file>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="p"/>
+
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="100"/>
+            <property name="absoluteLineLimit" value="100"/>
+        </properties>
+    </rule>
+</ruleset>
