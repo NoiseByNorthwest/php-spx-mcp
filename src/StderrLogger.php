@@ -21,9 +21,13 @@ final class StderrLogger extends AbstractLogger
         $levelStr = is_string($level) || $level instanceof Stringable ? (string) $level : 'unknown';
         $line = sprintf('[%s] %s', strtoupper($levelStr), (string) $message);
         if ($context !== []) {
-            $encoded = json_encode($context, JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            $encoded = json_encode(
+                $context,
+                JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR,
+            );
             $line .= ' ' . ($encoded !== false ? $encoded : '<unencodable context>');
         }
+
         fwrite(STDERR, $line . "\n");
     }
 }

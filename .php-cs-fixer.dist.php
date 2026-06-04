@@ -28,6 +28,9 @@ return (new PhpCsFixer\Config())
         ],
         'array_syntax'        => ['syntax' => 'short'],
         'trailing_comma_in_multiline' => ['elements' => ['arrays', 'arguments', 'parameters']],
+        'blank_line_before_statement' => [
+            'statements' => ['return', 'throw', 'continue', 'break'],
+        ],
         'native_function_invocation' => false,
     ])
     ->setFinder($finder);

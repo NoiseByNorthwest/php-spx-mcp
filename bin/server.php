@@ -23,7 +23,10 @@ $container->set(LoggerInterface::class, $logger);
 $container->set(ClockInterface::class, new SystemClock());
 $container->set(
     SpxReportStore::class,
-    new SpxReportStore($dataDir !== false && $dataDir !== '' ? $dataDir : '/tmp/spx', $logger),
+    new SpxReportStore(
+        $dataDir !== false && $dataDir !== '' ? $dataDir : '/tmp/spx',
+        $logger,
+    ),
 );
 
 $server = Server::make()

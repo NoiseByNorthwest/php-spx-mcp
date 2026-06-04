@@ -44,6 +44,7 @@ class SpxReportStore
                     $key,
                     $e->getMessage(),
                 ));
+
                 continue;
             }
 
@@ -54,9 +55,11 @@ class SpxReportStore
             if ($filter->since !== null && $timestamp < $filter->since) {
                 continue;
             }
+
             if ($filter->minWallTime !== null && $wallTime < $filter->minWallTime) {
                 continue;
             }
+
             if ($filter->query !== null && !self::matchesAny($filter->query, $descriptors)) {
                 continue;
             }
@@ -86,13 +89,17 @@ class SpxReportStore
         $path = $this->dataDir . '/' . $reportKey . '.json';
         $json = @file_get_contents($path);
         if ($json === false) {
-            throw new \RuntimeException("Cannot read metadata for report '$reportKey'");
+            throw new \RuntimeException(
+                "Cannot read metadata for report '$reportKey'",
+            );
         }
 
         /** @var array<string, mixed>|null $metadata */
         $metadata = json_decode($json, true);
         if (!is_array($metadata)) {
-            throw new \RuntimeException("Malformed metadata for report '$reportKey'");
+            throw new \RuntimeException(
+                "Malformed metadata for report '$reportKey'",
+            );
         }
 
         return $metadata;
@@ -111,8 +118,11 @@ class SpxReportStore
 
         $enabledMetrics = $metadata['enabled_metrics'] ?? null;
         if (!is_array($enabledMetrics) || !array_is_list($enabledMetrics)) {
-            throw new \RuntimeException("Report metadata is missing 'enabled_metrics'");
+            throw new \RuntimeException(
+                "Report metadata is missing 'enabled_metrics'",
+            );
         }
+
         foreach ($enabledMetrics as $enabledMetric) {
             if (!is_string($enabledMetric)) {
                 throw new \RuntimeException(
@@ -243,6 +253,7 @@ class SpxReportStore
             if ($handle === false) {
                 throw new \RuntimeException("Cannot open report file: $gzPath");
             }
+
             return $handle;
         }
 
@@ -252,10 +263,12 @@ class SpxReportStore
                     "PHP extension 'zstd' is required to read .txt.zst report files",
                 );
             }
+
             $handle = fopen('compress.zstd://' . $zstPath, 'r');
             if ($handle === false) {
                 throw new \RuntimeException("Cannot open report file: $zstPath");
             }
+
             return $handle;
         }
 
