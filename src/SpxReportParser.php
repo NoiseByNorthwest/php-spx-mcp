@@ -37,6 +37,7 @@ final class SpxReportParser
         foreach ($parts as $idx => $part) {
             if ($part !== '' && ctype_digit($part)) {
                 $lineNumberIdx = $idx;
+
                 break;
             }
         }
@@ -111,6 +112,7 @@ final class SpxReportParser
                             count($this->recentEvents),
                         ));
                     }
+
                     $event[0] = $this->recentEvents[$backRefIdx][0];
                 } else {
                     $event[0] = (int) $v;
