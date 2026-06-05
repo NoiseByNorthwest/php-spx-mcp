@@ -19,8 +19,8 @@ use Psr\Log\NullLogger;
  */
 class SpxToolProviderTest extends TestCase
 {
-    private const GZ_REPORT_KEY = 'spx-full-20260525_215443-5cba1aa08353-4365-1804289383';
-    private const ZST_REPORT_KEY = 'spx-full-20260525_220721-12ff3135c867-4437-1804289383';
+    private const GZ_REPORT_KEY = 'spx-full-20260605_200325-f4b095657445-4367-1804289383';
+    private const ZST_REPORT_KEY = 'spx-full-20260605_200250-8f741391b71b-4436-1804289383';
 
     private static string $fixturesDir;
 
@@ -34,18 +34,18 @@ class SpxToolProviderTest extends TestCase
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
                 [
-                    'key'          => self::GZ_REPORT_KEY,
-                    'timestamp'    => 1779746083,
+                    'key'          => self::ZST_REPORT_KEY,
+                    'timestamp'    => 1780689770,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1096065,
+                    'wall_time_ms' => 1308999,
                 ],
             ],
             self::makeProvider()->findReports(),
@@ -57,18 +57,18 @@ class SpxToolProviderTest extends TestCase
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
                 [
-                    'key'          => self::GZ_REPORT_KEY,
-                    'timestamp'    => 1779746083,
+                    'key'          => self::ZST_REPORT_KEY,
+                    'timestamp'    => 1780689770,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1096065,
+                    'wall_time_ms' => 1308999,
                 ],
             ],
             self::makeProvider()->findReports(query: 'composer install'),
@@ -80,18 +80,18 @@ class SpxToolProviderTest extends TestCase
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
                 [
-                    'key'          => self::GZ_REPORT_KEY,
-                    'timestamp'    => 1779746083,
+                    'key'          => self::ZST_REPORT_KEY,
+                    'timestamp'    => 1780689770,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1096065,
+                    'wall_time_ms' => 1308999,
                 ],
             ],
             self::makeProvider()->findReports(query: '*--no-progress'),
@@ -108,32 +108,32 @@ class SpxToolProviderTest extends TestCase
 
     public function testFindReportsFiltersBySinceTimestamp(): void
     {
-        // 1779746500 sits between GZ (@1779746083) and ZST (@1779746841)
+        // 1780689780 sits between ZST (@1780689770) and GZ (@1780689805)
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
             ],
-            self::makeProvider()->findReports(since_timestamp: 1779746500),
+            self::makeProvider()->findReports(since_timestamp: 1780689780),
         );
     }
 
     public function testFindReportsFiltersByMinWallTime(): void
     {
-        // 1100000 sits between GZ (1096065) and ZST (1116321)
+        // 1100000 sits between GZ (926457) and ZST (1308999)
         self::assertSame(
             [
                 [
                     'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'timestamp'    => 1780689770,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 1308999,
                 ],
             ],
             self::makeProvider()->findReports(min_wall_time_ms: 1100000),
@@ -145,11 +145,11 @@ class SpxToolProviderTest extends TestCase
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
             ],
             self::makeProvider()->findReports(limit: 1),
@@ -158,43 +158,44 @@ class SpxToolProviderTest extends TestCase
 
     public function testFindReportsResolvesWithinLastSecondsAgainstInjectedClock(): void
     {
-        // freeze "now" 100s after the most recent report (ZST @1779746841)
+        // freeze "now" 100s after the most recent report (GZ @1780689805)
         $clock = new class implements ClockInterface {
             public function now(): \DateTimeImmutable
             {
-                return new \DateTimeImmutable('@1779746941');
+                return new \DateTimeImmutable('@1780689905');
             }
         };
         $toolProvider = self::makeProvider(clock: $clock);
 
+        // 120s reaches back to GZ (100s ago) but not ZST (135s ago)
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
             ],
-            $toolProvider->findReports(within_last_seconds: 200),
+            $toolProvider->findReports(within_last_seconds: 120),
         );
 
         self::assertSame(
             [
                 [
-                    'key'          => self::ZST_REPORT_KEY,
-                    'timestamp'    => 1779746841,
+                    'key'          => self::GZ_REPORT_KEY,
+                    'timestamp'    => 1780689805,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1116321,
+                    'wall_time_ms' => 926457,
                 ],
                 [
-                    'key'          => self::GZ_REPORT_KEY,
-                    'timestamp'    => 1779746083,
+                    'key'          => self::ZST_REPORT_KEY,
+                    'timestamp'    => 1780689770,
                     'descriptor'   => '/usr/local/bin/composer install '
                         . '--no-interaction --no-progress',
-                    'wall_time_ms' => 1096065,
+                    'wall_time_ms' => 1308999,
                 ],
             ],
             $toolProvider->findReports(within_last_seconds: 1000),
@@ -235,9 +236,9 @@ class SpxToolProviderTest extends TestCase
         self::assertSame(
             [
                 'key'                   => self::GZ_REPORT_KEY,
-                'exec_ts'               => 1779746083,
-                'host_name'             => '5cba1aa08353',
-                'process_pid'           => 4365,
+                'exec_ts'               => 1780689805,
+                'host_name'             => 'f4b095657445',
+                'process_pid'           => 4367,
                 'process_tid'           => 0,
                 'process_pwd'           => '/app',
                 'cli'                   => 1,
@@ -247,11 +248,11 @@ class SpxToolProviderTest extends TestCase
                 'http_method'           => 'n/a',
                 'http_host'             => 'n/a',
                 'custom_metadata_str'   => null,
-                'wall_time_ms'          => 1096065,
-                'peak_memory_usage'     => 16297632,
-                'called_function_count' => 1713,
-                'call_count'            => 463766,
-                'recorded_call_count'   => 463766,
+                'wall_time_ms'          => 926457,
+                'peak_memory_usage'     => 17003848,
+                'called_function_count' => 1796,
+                'call_count'            => 500617,
+                'recorded_call_count'   => 500617,
                 'enabled_metrics'       => ['wt', 'zm'],
             ],
             $metadata,
@@ -316,28 +317,28 @@ class SpxToolProviderTest extends TestCase
                         'children' => [
                             [
                                 'name' => '/usr/local/bin/composer',
-                                'value' => 1095197049,
+                                'value' => 925452923,
                                 'calls' => 1,
                                 'file' => '/usr/local/bin/composer',
                                 'lineNumber' => 1,
                                 'children' => [
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/bin/composer',
-                                        'value' => 1086894502,
+                                        'value' => 919322680,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/bin/composer',
                                         'lineNumber' => 1,
                                         'children' => [
                                             [
                                                 'name' => 'Composer\\Console\\Application::run',
-                                                'value' => 1083510082,
+                                                'value' => 916511060,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                                'lineNumber' => 133,
+                                                'lineNumber' => 135,
                                                 'children' => [
                                                     [
                                                         'name' => 'Symfony\\Component\\Console\\Application::run',
-                                                        'value' => 1082553317,
+                                                        'value' => 915697418,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/symfony/console/Application.php',
                                                         'lineNumber' => 137,
@@ -347,14 +348,14 @@ class SpxToolProviderTest extends TestCase
                                             ],
                                             [
                                                 'name' => 'Composer\\Autoload\\ClassLoader::loadClass',
-                                                'value' => 1668484,
+                                                'value' => 1381281,
                                                 'calls' => 4,
                                                 'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                 'lineNumber' => 423,
                                                 'children' => [
                                                     [
                                                         'name' => '{closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}',
-                                                        'value' => 1650362,
+                                                        'value' => 1364271,
                                                         'calls' => 4,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                         'lineNumber' => 575,
@@ -364,14 +365,14 @@ class SpxToolProviderTest extends TestCase
                                             ],
                                             [
                                                 'name' => 'phar:///usr/local/bin/composer/src/bootstrap.php',
-                                                'value' => 1064426,
+                                                'value' => 887644,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/src/bootstrap.php',
                                                 'lineNumber' => 1,
                                                 'children' => [
                                                     [
                                                         'name' => 'includeIfExists',
-                                                        'value' => 1061184,
+                                                        'value' => 884722,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/src/bootstrap.php',
                                                         'lineNumber' => 15,
@@ -383,7 +384,7 @@ class SpxToolProviderTest extends TestCase
                                     ],
                                     [
                                         'name' => 'Phar::mapPhar',
-                                        'value' => 8160792,
+                                        'value' => 6003441,
                                         'calls' => 1,
                                         'file' => '',
                                         'lineNumber' => 0,
@@ -393,7 +394,7 @@ class SpxToolProviderTest extends TestCase
                             ],
                             [
                                 'name' => '::zend_compile_file',
-                                'value' => 701466,
+                                'value' => 744061,
                                 'calls' => 1,
                                 'file' => '',
                                 'lineNumber' => 0,
@@ -415,28 +416,28 @@ class SpxToolProviderTest extends TestCase
                         'children' => [
                             [
                                 'name' => '/usr/local/bin/composer',
-                                'value' => 1095197049,
+                                'value' => 925452923,
                                 'calls' => 1,
                                 'file' => '/usr/local/bin/composer',
                                 'lineNumber' => 1,
                                 'children' => [
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/bin/composer',
-                                        'value' => 1086894502,
+                                        'value' => 919322680,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/bin/composer',
                                         'lineNumber' => 1,
                                         'children' => [
                                             [
                                                 'name' => 'Composer\\Console\\Application::run',
-                                                'value' => 1083510082,
+                                                'value' => 916511060,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                                'lineNumber' => 133,
+                                                'lineNumber' => 135,
                                                 'children' => [
                                                     [
                                                         'name' => 'Symfony\\Component\\Console\\Application::run',
-                                                        'value' => 1082553317,
+                                                        'value' => 915697418,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/symfony/console/Application.php',
                                                         'lineNumber' => 137,
@@ -446,14 +447,14 @@ class SpxToolProviderTest extends TestCase
                                             ],
                                             [
                                                 'name' => 'Composer\\Autoload\\ClassLoader::loadClass',
-                                                'value' => 1668484,
+                                                'value' => 1381281,
                                                 'calls' => 4,
                                                 'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                 'lineNumber' => 423,
                                                 'children' => [
                                                     [
                                                         'name' => '{closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}',
-                                                        'value' => 1650362,
+                                                        'value' => 1364271,
                                                         'calls' => 4,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                         'lineNumber' => 575,
@@ -465,7 +466,7 @@ class SpxToolProviderTest extends TestCase
                                     ],
                                     [
                                         'name' => 'Phar::mapPhar',
-                                        'value' => 8160792,
+                                        'value' => 6003441,
                                         'calls' => 1,
                                         'file' => '',
                                         'lineNumber' => 0,
@@ -489,28 +490,28 @@ class SpxToolProviderTest extends TestCase
                         'children' => [
                             [
                                 'name' => '/usr/local/bin/composer',
-                                'value' => 1095197049,
+                                'value' => 925452923,
                                 'calls' => 1,
                                 'file' => '/usr/local/bin/composer',
                                 'lineNumber' => 1,
                                 'children' => [
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/bin/composer',
-                                        'value' => 1086894502,
+                                        'value' => 919322680,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/bin/composer',
                                         'lineNumber' => 1,
                                         'children' => [
                                             [
                                                 'name' => 'Composer\\Console\\Application::run',
-                                                'value' => 1083510082,
+                                                'value' => 916511060,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                                'lineNumber' => 133,
+                                                'lineNumber' => 135,
                                                 'children' => [
                                                     [
                                                         'name' => 'Symfony\\Component\\Console\\Application::run',
-                                                        'value' => 1082553317,
+                                                        'value' => 915697418,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/symfony/console/Application.php',
                                                         'lineNumber' => 137,
@@ -538,28 +539,28 @@ class SpxToolProviderTest extends TestCase
                         'children' => [
                             [
                                 'name' => '/usr/local/bin/composer',
-                                'value' => 1115549512,
+                                'value' => 1308016341,
                                 'calls' => 1,
                                 'file' => '/usr/local/bin/composer',
                                 'lineNumber' => 1,
                                 'children' => [
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/bin/composer',
-                                        'value' => 1109671897,
+                                        'value' => 1301855493,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/bin/composer',
                                         'lineNumber' => 1,
                                         'children' => [
                                             [
                                                 'name' => 'Composer\\Console\\Application::run',
-                                                'value' => 1106734803,
+                                                'value' => 1299063268,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                                'lineNumber' => 133,
+                                                'lineNumber' => 135,
                                                 'children' => [
                                                     [
                                                         'name' => 'Symfony\\Component\\Console\\Application::run',
-                                                        'value' => 1105907526,
+                                                        'value' => 1298251379,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/symfony/console/Application.php',
                                                         'lineNumber' => 137,
@@ -622,21 +623,21 @@ class SpxToolProviderTest extends TestCase
                     'metric' => 'wt',
                     'root' =>  [
                         'name' => 'Composer\\Autoload\\ClassLoader::loadClass',
-                        'value' => 1668484,
+                        'value' => 1381281,
                         'calls' => 4,
                         'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                         'lineNumber' => 423,
                         'children' =>  [
                             [
                                 'name' => '{closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}',
-                                'value' => 1650362,
+                                'value' => 1364271,
                                 'calls' => 4,
                                 'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                 'lineNumber' => 575,
                                 'children' =>  [
                                     [
                                         'name' => '::zend_compile_file',
-                                        'value' => 995665,
+                                        'value' => 835337,
                                         'calls' => 4,
                                         'file' => '',
                                         'lineNumber' => 0,
@@ -644,21 +645,21 @@ class SpxToolProviderTest extends TestCase
                                     ],
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                        'value' => 648741,
+                                        'value' => 524530,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
                                         'lineNumber' => 1,
                                         'children' =>  [
                                             [
                                                 'name' => 'Composer\\Autoload\\ClassLoader::loadClass',
-                                                'value' => 645249,
+                                                'value' => 521708,
                                                 'calls' => 1,
                                                 'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                 'lineNumber' => 423,
                                                 'children' =>  [
                                                     [
                                                         'name' => '{closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}',
-                                                        'value' => 642385,
+                                                        'value' => 518968,
                                                         'calls' => 1,
                                                         'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
                                                         'lineNumber' => 575,
@@ -669,6 +670,14 @@ class SpxToolProviderTest extends TestCase
                                         ],
                                     ],
                                 ],
+                            ],
+                            [
+                                'name' => 'Composer\\Autoload\\ClassLoader::findFile',
+                                'value' => 15094,
+                                'calls' => 4,
+                                'file' => 'phar:///usr/local/bin/composer/vendor/composer/ClassLoader.php',
+                                'lineNumber' => 442,
+                                'children' =>  [],
                             ],
                         ],
                     ],
@@ -862,51 +871,51 @@ class SpxToolProviderTest extends TestCase
                         'name' => 'curl_multi_select',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 26213,
-                        'exclusive' => 739015631,
-                        'exclusiveRelative' => 0.674246022792371,
-                        'inclusive' => 739015631,
-                        'inclusiveRelative' => 0.674246022792371,
+                        'calls' => 25515,
+                        'exclusive' => 589812129,
+                        'exclusiveRelative' => 0.6366340836134794,
+                        'inclusive' => 589812129,
+                        'inclusiveRelative' => 0.6366340836134794,
                     ],
                     [
                         'name' => 'curl_multi_exec',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 26213,
-                        'exclusive' => 203550323,
-                        'exclusiveRelative' => 0.1857105451682286,
-                        'inclusive' => 203550323,
-                        'inclusiveRelative' => 0.1857105451682286,
+                        'calls' => 25515,
+                        'exclusive' => 182802804,
+                        'exclusiveRelative' => 0.19731451742748832,
+                        'inclusive' => 182802804,
+                        'inclusiveRelative' => 0.19731451742748832,
                     ],
                     [
                         'name' => '::zend_compile_file',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 323,
-                        'exclusive' => 32820091,
-                        'exclusiveRelative' => 0.029943637043901294,
-                        'inclusive' => 32820091,
-                        'inclusiveRelative' => 0.029943637043901294,
+                        'calls' => 343,
+                        'exclusive' => 32778105,
+                        'exclusiveRelative' => 0.03538017923544839,
+                        'inclusive' => 32778105,
+                        'inclusiveRelative' => 0.03538017923544839,
                     ],
                     [
                         'name' => 'Composer\Util\Http\CurlDownloader::tick',
                         'file' => 'phar:///usr/local/bin/composer/src/Composer/Util/Http/CurlDownloader.php',
-                        'lineNumber' => 325,
-                        'calls' => 26246,
-                        'exclusive' => 27650662,
-                        'exclusiveRelative' => 0.02522727273826248,
-                        'inclusive' => 1014551168,
-                        'inclusiveRelative' => 0.9256327758828616,
+                        'lineNumber' => 333,
+                        'calls' => 26459,
+                        'exclusive' => 29133015,
+                        'exclusiveRelative' => 0.031445725503930336,
+                        'inclusive' => 843658114,
+                        'inclusiveRelative' => 0.9106315110882813,
                     ],
                     [
                         'name' => 'curl_getinfo',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 27422,
-                        'exclusive' => 25821324,
-                        'exclusiveRelative' => 0.023558263560237463,
-                        'inclusive' => 25821324,
-                        'inclusiveRelative' => 0.023558263560237463,
+                        'calls' => 26654,
+                        'exclusive' => 26150699,
+                        'exclusiveRelative' => 0.028226659770363816,
+                        'inclusive' => 26150699,
+                        'inclusiveRelative' => 0.028226659770363816,
                     ],
                 ],
             ],
@@ -918,51 +927,51 @@ class SpxToolProviderTest extends TestCase
                         'name' => 'curl_multi_select',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 27754,
-                        'exclusive' => 731223122,
-                        'exclusiveRelative' => 0.6550305723791655,
-                        'inclusive' => 731223122,
-                        'inclusiveRelative' => 0.6550305723791655,
+                        'calls' => 46131,
+                        'exclusive' => 867917249,
+                        'exclusiveRelative' => 0.6630400365610076,
+                        'inclusive' => 867917249,
+                        'inclusiveRelative' => 0.6630400365610076,
                     ],
                     [
                         'name' => 'curl_multi_exec',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 27754,
-                        'exclusive' => 232391936,
-                        'exclusiveRelative' => 0.20817698220213338,
-                        'inclusive' => 232391936,
-                        'inclusiveRelative' => 0.20817698220213338,
+                        'calls' => 46131,
+                        'exclusive' => 240464645,
+                        'exclusiveRelative' => 0.18370148444005602,
+                        'inclusive' => 240464645,
+                        'inclusiveRelative' => 0.18370148444005602,
                     ],
                     [
                         'name' => 'Composer\Util\Http\CurlDownloader::tick',
                         'file' => 'phar:///usr/local/bin/composer/src/Composer/Util/Http/CurlDownloader.php',
-                        'lineNumber' => 325,
-                        'calls' => 27809,
-                        'exclusive' => 30662697,
-                        'exclusiveRelative' => 0.027467681699757465,
-                        'inclusive' => 1039374443,
-                        'inclusiveRelative' => 0.9310729048780905,
-                    ],
-                    [
-                        'name' => '::zend_compile_file',
-                        'file' => '',
-                        'lineNumber' => 0,
-                        'calls' => 323,
-                        'exclusive' => 30169983,
-                        'exclusiveRelative' => 0.027026307892325775,
-                        'inclusive' => 30169983,
-                        'inclusiveRelative' => 0.027026307892325775,
+                        'lineNumber' => 333,
+                        'calls' => 47234,
+                        'exclusive' => 49499520,
+                        'exclusiveRelative' => 0.0378148534187645,
+                        'inclusive' => 1223417826,
+                        'inclusiveRelative' => 0.934622512705043,
                     ],
                     [
                         'name' => 'curl_getinfo',
                         'file' => '',
                         'lineNumber' => 0,
-                        'calls' => 28817,
-                        'exclusive' => 28541023,
-                        'exclusiveRelative' => 0.02556708352006534,
-                        'inclusive' => 28541023,
-                        'inclusiveRelative' => 0.02556708352006534,
+                        'calls' => 47133,
+                        'exclusive' => 44710064,
+                        'exclusiveRelative' => 0.03415597800753582,
+                        'inclusive' => 44710064,
+                        'inclusiveRelative' => 0.03415597800753582,
+                    ],
+                    [
+                        'name' => '::zend_compile_file',
+                        'file' => '',
+                        'lineNumber' => 0,
+                        'calls' => 343,
+                        'exclusive' => 31634388,
+                        'exclusiveRelative' => 0.024166895865097737,
+                        'inclusive' => 31634388,
+                        'inclusiveRelative' => 0.024166895865097737,
                     ],
                 ],
             ],
@@ -1070,7 +1079,7 @@ class SpxToolProviderTest extends TestCase
         // The entry point is invoked once and is its own outermost frame, so its
         // inclusive metric equals the wall time of that single top-level call.
         self::assertSame(1, $composer['calls']);
-        self::assertSame(1095197049, $composer['inclusive']);
+        self::assertSame(925452923, $composer['inclusive']);
         self::assertSame('/usr/local/bin/composer', $composer['file']);
         self::assertSame(1, $composer['lineNumber']);
     }
@@ -1132,7 +1141,7 @@ class SpxToolProviderTest extends TestCase
                     'metric' => 'wt',
                     'root' => [
                         'name' => '/usr/local/bin/composer',
-                        'value' => 1095197049,
+                        'value' => 925452923,
                         'calls' => 1,
                         'file' => '/usr/local/bin/composer',
                         'lineNumber' => 1,
@@ -1148,28 +1157,28 @@ class SpxToolProviderTest extends TestCase
                     'metric' => 'wt',
                     'root' => [
                         'name' => 'Symfony\Component\Console\Application::run',
-                        'value' => 1082553317,
+                        'value' => 915697418,
                         'calls' => 1,
                         'file' => 'phar:///usr/local/bin/composer/vendor/symfony/console/Application.php',
                         'lineNumber' => 137,
                         'children' =>  [
                             [
                                 'name' => 'Composer\Console\Application::run',
-                                'value' => 1082553317,
+                                'value' => 915697418,
                                 'calls' => 1,
                                 'file' => 'phar:///usr/local/bin/composer/src/Composer/Console/Application.php',
-                                'lineNumber' => 133,
+                                'lineNumber' => 135,
                                 'children' => [
                                     [
                                         'name' => 'phar:///usr/local/bin/composer/bin/composer',
-                                        'value' => 1082553317,
+                                        'value' => 915697418,
                                         'calls' => 1,
                                         'file' => 'phar:///usr/local/bin/composer/bin/composer',
                                         'lineNumber' => 1,
                                         'children' => [
                                             [
                                                 'name' => '/usr/local/bin/composer',
-                                                'value' => 1082553317,
+                                                'value' => 915697418,
                                                 'calls' => 1,
                                                 'file' => '/usr/local/bin/composer',
                                                 'lineNumber' => 1,
@@ -1222,7 +1231,7 @@ class SpxToolProviderTest extends TestCase
                 'metric' => 'wt',
                 'root'   => [
                     'name'       => '/usr/local/bin/composer',
-                    'value'      => 1095197049,
+                    'value'      => 925452923,
                     'calls'      => 1,
                     'file'       => '/usr/local/bin/composer',
                     'lineNumber' => 1,

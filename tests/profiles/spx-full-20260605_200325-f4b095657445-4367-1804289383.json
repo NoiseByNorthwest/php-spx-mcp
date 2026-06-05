@@ -1,8 +1,8 @@
 {
-  "key": "spx-full-20260525_215443-5cba1aa08353-4365-1804289383",
-  "exec_ts": 1779746083,
-  "host_name": "5cba1aa08353",
-  "process_pid": 4365,
+  "key": "spx-full-20260605_200325-f4b095657445-4367-1804289383",
+  "exec_ts": 1780689805,
+  "host_name": "f4b095657445",
+  "process_pid": 4367,
   "process_tid": 0,
   "process_pwd": "\/app",
   "cli": 1,
@@ -11,11 +11,11 @@
   "http_method": "n\/a",
   "http_host": "n\/a",
   "custom_metadata_str": null,
-  "wall_time_ms": 1096065,
-  "peak_memory_usage": 16297632,
-  "called_function_count": 1713,
-  "call_count": 463766,
-  "recorded_call_count": 463766,
+  "wall_time_ms": 926457,
+  "peak_memory_usage": 17003848,
+  "called_function_count": 1796,
+  "call_count": 500617,
+  "recorded_call_count": 500617,
   "enabled_metrics": [
     "wt"
     ,"zm"
