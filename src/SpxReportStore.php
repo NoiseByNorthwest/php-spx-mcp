@@ -136,6 +136,31 @@ class SpxReportStore
     }
 
     /**
+     * Returns a make-style fingerprint of the report body and its metadata
+     * sidecar: both paths plus mtime and size. This is a heuristic rather
+     * than a content hash (hashing would cost back a third of the saved
+     * parse time); a same-second same-size rewrite could serve one stale
+     * read.
+     */
+    public function getReportFingerprint(string $reportKey): string
+    {
+        $bodyPath = $this->reportBodyPath($reportKey);
+        $metadataPath = $this->dataDir . '/' . $reportKey . '.json';
+
+        clearstatcache(true, $bodyPath);
+        clearstatcache(true, $metadataPath);
+
+        return implode('|', [
+            $bodyPath,
+            (string) @filemtime($bodyPath),
+            (string) @filesize($bodyPath),
+            $metadataPath,
+            (string) @filemtime($metadataPath),
+            (string) @filesize($metadataPath),
+        ]);
+    }
+
+    /**
      * Streams a report body line by line, decompressing .txt.gz or .txt.zst and
      * trimming the trailing newline. The handle is closed when iteration ends or
      * the generator is abandoned.
@@ -238,42 +263,57 @@ class SpxReportStore
     }
 
     /**
-     * @return resource
+     * Resolves the on-disk report body path, preferring .txt.gz when both
+     * compressed variants exist.
      */
-    private function openReportHandle(string $key): mixed
+    private function reportBodyPath(string $reportKey): string
     {
-        $this->validateReportKey($key);
-        $base = $this->dataDir . '/' . $key;
+        $this->validateReportKey($reportKey);
+        $base = $this->dataDir . '/' . $reportKey;
 
         $gzPath = $base . '.txt.gz';
         $zstPath = $base . '.txt.zst';
 
         if (file_exists($gzPath)) {
-            $handle = fopen('compress.zlib://' . $gzPath, 'r');
-            if ($handle === false) {
-                throw new \RuntimeException("Cannot open report file: $gzPath");
-            }
-
-            return $handle;
+            return $gzPath;
         }
 
         if (file_exists($zstPath)) {
-            if (!extension_loaded('zstd')) {
-                throw new \RuntimeException(
-                    "PHP extension 'zstd' is required to read .txt.zst report files",
-                );
-            }
+            return $zstPath;
+        }
 
-            $handle = fopen('compress.zstd://' . $zstPath, 'r');
+        throw new \RuntimeException(
+            "Report file not found for key: $reportKey (tried .txt.gz and .txt.zst)",
+        );
+    }
+
+    /**
+     * @return resource
+     */
+    private function openReportHandle(string $key): mixed
+    {
+        $path = $this->reportBodyPath($key);
+
+        if (str_ends_with($path, '.txt.gz')) {
+            $handle = fopen('compress.zlib://' . $path, 'r');
             if ($handle === false) {
-                throw new \RuntimeException("Cannot open report file: $zstPath");
+                throw new \RuntimeException("Cannot open report file: $path");
             }
 
             return $handle;
         }
 
-        throw new \RuntimeException(
-            "Report file not found for key: $key (tried .txt.gz and .txt.zst)",
-        );
+        if (!extension_loaded('zstd')) {
+            throw new \RuntimeException(
+                "PHP extension 'zstd' is required to read .txt.zst report files",
+            );
+        }
+
+        $handle = fopen('compress.zstd://' . $path, 'r');
+        if ($handle === false) {
+            throw new \RuntimeException("Cannot open report file: $path");
+        }
+
+        return $handle;
     }
 }
