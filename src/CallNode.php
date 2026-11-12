@@ -22,4 +22,11 @@ final class CallNode
     public array $children = [];
 
     public function __construct(public readonly int $fnIdx) {}
+
+    public function __clone(): void
+    {
+        foreach ($this->children as $fnIdx => $child) {
+            $this->children[$fnIdx] = clone $child;
+        }
+    }
 }

@@ -39,6 +39,18 @@ class CallGraphAggregator
     /** Synthetic root sentinel; see {@see CallNode::$fnIdx}. */
     private const ROOT_FN_IDX = -1;
 
+    private const MAX_CACHED_TREES = 16;
+
+    /**
+     * Parsed call trees keyed by report key and metric, with the fingerprint
+     * they were parsed from. Pruning mutates the tree it runs on, so cached
+     * trees are handed out as deep clones. Bounded with oldest-first
+     * eviction so long sessions over many reports stay bounded.
+     *
+     * @var array<string, array{fingerprint: string, root: CallNode, functions: list<FunctionRow>}>
+     */
+    private array $treeCache = [];
+
     public function __construct(
         private readonly SpxReportStore $reportStore,
         private readonly LoggerInterface $logger = new StderrLogger(),
@@ -58,7 +70,7 @@ class CallGraphAggregator
         $metricIdx = $this->resolveMetricIndex($reportKey, $metric);
 
         ['root' => $root, 'functions' => $functions]
-            = $this->readCallTreeFile($reportKey, $metricIdx);
+            = $this->readCallTreeFile($reportKey, $metricIdx, $metric);
 
         $focus = $this->resolveFocusNode(
             $root,
@@ -116,7 +128,7 @@ class CallGraphAggregator
         $metricIdx = $this->resolveMetricIndex($reportKey, $metric);
 
         ['root' => $root, 'functions' => $functions]
-            = $this->readCallTreeFile($reportKey, $metricIdx);
+            = $this->readCallTreeFile($reportKey, $metricIdx, $metric);
 
         // The whole-program total is the sum of the top-level calls' inclusive
         // values; every exclusive contribution telescopes up to it.
@@ -190,7 +202,7 @@ class CallGraphAggregator
         $metricIdx = $this->resolveMetricIndex($reportKey, $metric);
 
         ['root' => $root, 'functions' => $functions]
-            = $this->readCallTreeFile($reportKey, $metricIdx);
+            = $this->readCallTreeFile($reportKey, $metricIdx, $metric);
 
         $targetFnIdx = null;
         foreach ($functions as $fnIdx => $fn) {
@@ -408,12 +420,20 @@ class CallGraphAggregator
     /**
      * Streams the report once, building the {@see CallNode} tree and resolving the
      * function table. Array conversion is left to {@see self::nodeToArray()} so
-     * pruning runs on the typed graph.
+     * pruning runs on the typed graph. Parsed trees are cached by report key
+     * and metric; callers prune the returned clone, never the cached original.
      *
      * @return array{root: CallNode, functions: list<FunctionRow>}
      */
-    private function readCallTreeFile(string $key, int $metricIdx): array
+    private function readCallTreeFile(string $key, int $metricIdx, string $metric): array
     {
+        $cacheKey = $key . "\0" . $metric;
+        $fingerprint = $this->reportStore->getReportFingerprint($key);
+        $cached = $this->treeCache[$cacheKey] ?? null;
+        if ($cached !== null && $cached['fingerprint'] === $fingerprint) {
+            return ['root' => clone $cached['root'], 'functions' => $cached['functions']];
+        }
+
         $reportParser = new SpxReportParser();
         $functions = [];
         $section = null;
@@ -484,7 +504,18 @@ class CallGraphAggregator
             ));
         }
 
-        return ['root' => $root, 'functions' => $functions];
+        unset($this->treeCache[$cacheKey]);
+        if (count($this->treeCache) >= self::MAX_CACHED_TREES) {
+            array_shift($this->treeCache);
+        }
+
+        $this->treeCache[$cacheKey] = [
+            'fingerprint' => $fingerprint,
+            'root' => $root,
+            'functions' => $functions,
+        ];
+
+        return ['root' => clone $root, 'functions' => $functions];
     }
 
     /**
